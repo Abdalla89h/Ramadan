@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة رمضان — عمّان (الدخول فقط)</title>
+  <meta name="description" content="لوحة رمضان للفريق: اسم + وقت دخول فقط، خروج تلقائي (6.5 ساعات)، مواقيت عمّان، عداد الإفطار، وخريطة سير مباشرة (Google Maps Traffic)." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+  <div class="pattern" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="crest" aria-hidden="true">
+          <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M29 8.2c-7.7 1.2-13.6 8-13.6 16.1 0 9.1 7.4 16.5 16.5 16.5 3.2 0 6.2-.9 8.7-2.5-2.5 4.4-7.2 7.4-12.6 7.4-8 0-14.6-6.6-14.6-14.6 0-8.7 7.7-15.7 15.6-15.7Z" fill="rgba(246,227,180,.95)"/>
+            <path d="M38.2 12.2l1.3 3.2 3.4.2-2.6 2.1.9 3.3-3-1.8-3 1.8.9-3.3-2.6-2.1 3.4-.2 1.3-3.2Z" fill="rgba(215,181,109,.95)"/>
+          </svg>
+        </div>
+        <div>
+          <h1>لوحة رمضان — عمّان</h1>
+          <p>
+            إدخال <b>الاسم</b> + <b>وقت الدخول</b> فقط. <b>الخروج المتوقع = دخولك + 6.5 ساعات</b> (بدون أي إضافة لوقت الصلاة).
+          </p>
+        </div>
+      </div>
+
+      <div class="chips">
+        <div class="chip">
+          <span id="apiDot" class="dot warn"></span>
+          <div>
+            <div class="k">البيانات</div>
+            <div class="v" id="apiStatus">تحميل…</div>
+          </div>
+        </div>
+        <div class="chip">
+          <div>
+            <div class="k">الآن (عمّان)</div>
+            <div class="v mono" id="nowClock">—</div>
+          </div>
+        </div>
+        <div class="chip">
+          <div>
+            <div class="k">هجري</div>
+            <div class="v" id="hijriLine">—</div>
+          </div>
+        </div>
+        <div class="chip">
+          <div>
+            <div class="k">رمضان</div>
+            <div class="v" id="ramadanLine">—</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="card">
+        <div class="hd">
+          <h2>الدوام (6.5 ساعات)</h2>
+          <p>تحديث فوري بمجرد إدخال وقت الدخول. المؤشرات بصرية + “عداد الإفطار” لمساعدة الفريق على تنظيم اليوم.</p>
+        </div>
+
+        <div class="bd">
+          <div class="row">
+            <div>
+              <label>الاسم</label>
+              <input id="name" placeholder="مثال: أحمد" autocomplete="off" />
+            </div>
+            <div>
+              <label>وقت الدخول (بصمة)</label>
+              <input id="inTime" type="time" />
+            </div>
+          </div>
+
+          <div class="kpiGrid">
+            <div class="kpi">
+              <div class="ring" aria-hidden="true">
+                <svg width="66" height="66">
+                  <circle cx="33" cy="33" r="28" class="ringBase"/>
+                  <circle id="ringWork" cx="33" cy="33" r="28" class="ringGold"/>
+                </svg>
+                <div class="txt" id="ringWorkTxt">—<small>دوام</small></div>
+              </div>
+              <div class="meta">
+                <div class="k">الخروج المتوقع</div>
+                <div class="v mono" id="kOut">—</div>
+                <div class="s" id="kOutS">—</div>
+              </div>
+            </div>
+
+            <div class="kpi">
+              <div class="ring" aria-hidden="true">
+                <svg width="66" height="66">
+                  <circle cx="33" cy="33" r="28" class="ringBase"/>
+                  <circle id="ringLeft" cx="33" cy="33" r="28" class="ringGreen"/>
+                </svg>
+                <div class="txt" id="ringLeftTxt">—<small>متبقي</small></div>
+              </div>
+              <div class="meta">
+                <div class="k">متبقي للخروج</div>
+                <div class="v" id="kLeft">—</div>
+                <div class="s" id="kLeftS">—</div>
+              </div>
+            </div>
+
+            <div class="kpi">
+              <div class="ring" aria-hidden="true">
+                <svg width="66" height="66">
+                  <circle cx="33" cy="33" r="28" class="ringBase"/>
+                  <circle id="ringFast" cx="33" cy="33" r="28" class="ringSky"/>
+                </svg>
+                <div class="txt" id="ringFastTxt">—<small>صيام</small></div>
+              </div>
+              <div class="meta">
+                <div class="k">تقدم الصيام</div>
+                <div class="v" id="fastProg">—</div>
+                <div class="s" id="fastProgS">من الفجر إلى المغرب</div>
+              </div>
+            </div>
+
+            <div class="kpi">
+              <div class="ring" aria-hidden="true">
+                <svg width="66" height="66">
+                  <circle cx="33" cy="33" r="28" class="ringBase"/>
+                  <circle id="ringPrayer" cx="33" cy="33" r="28" class="ringWarn"/>
+                </svg>
+                <div class="txt" id="ringPrayerTxt">—<small>صلاة</small></div>
+              </div>
+              <div class="meta">
+                <div class="k">الصلاة القادمة</div>
+                <div class="v" id="nextPrayer">—</div>
+                <div class="s mono" id="nextPrayerS">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="saveBtn">حفظ دخول اليوم (اختياري)</button>
+            <button id="calcBtn" class="alt">تحديث</button>
+          </div>
+
+          <details class="details">
+            <summary>سجل الدخول (محلي)</summary>
+            <div class="tiny">يحفظ داخل المتصفح فقط. لا يتم إرسال أي بيانات للخارج.</div>
+            <div class="tableWrap">
+              <table>
+                <thead><tr><th>التاريخ</th><th>الاسم</th><th>دخول</th><th>خروج متوقع</th></tr></thead>
+                <tbody id="logBody"><tr><td colspan="4" class="tiny">لا يوجد سجل بعد.</td></tr></tbody>
+              </table>
+            </div>
+            <div class="tiny" id="logStats">—</div>
+            <div class="actions">
+              <button id="exportCSV" class="alt">تصدير CSV</button>
+              <button id="clearLog" class="alt">مسح السجل</button>
+            </div>
+          </details>
+        </div>
+
+        <div class="footer">
+          قاعدة الحساب ثابتة: <b>6.5 ساعات</b> فقط. مواقيت الصلاة والعدّادات للعرض/التخطيط.
+        </div>
+      </section>
+
+      <div class="stack">
+        <section class="card">
+          <div class="hd">
+            <h2>رمضان اليوم</h2>
+            <p>عداد الإفطار + مواقيت الصلاة + “معلومة اليوم” (عملية ومختصرة).</p>
+          </div>
+
+          <div class="bd">
+            <div class="hero">
+              <div class="heroTop">
+                <div>
+                  <div class="heroTitle">متبقي على الإفطار</div>
+                  <div class="tiny mono" id="iftarAt">—</div>
+                </div>
+                <div class="tagRow">
+                  <span class="tag gold">رمضان <span id="ramDay">—</span></span>
+                  <span class="tag sky">المغرب: <span class="mono" id="maghribTime">—</span></span>
+                  <span class="tag green">الفجر: <span class="mono" id="fajrTime">—</span></span>
+                </div>
+              </div>
+
+              <div class="timer">
+                <div class="tbox"><div class="num mono" id="tH">—</div><div class="lab">ساعات</div></div>
+                <div class="tbox"><div class="num mono" id="tM">—</div><div class="lab">دقائق</div></div>
+                <div class="tbox"><div class="num mono" id="tS">—</div><div class="lab">ثواني</div></div>
+              </div>
+
+              <div class="timeline">
+                <div class="ptile" id="pFajr"><div class="k">الفجر</div><div class="v mono" id="ptFajr">—</div></div>
+                <div class="ptile" id="pSun"><div class="k">الشروق</div><div class="v mono" id="ptSun">—</div></div>
+                <div class="ptile" id="pDhuhr"><div class="k">الظهر</div><div class="v mono" id="ptDhuhr">—</div></div>
+                <div class="ptile" id="pAsr"><div class="k">العصر</div><div class="v mono" id="ptAsr">—</div></div>
+                <div class="ptile" id="pMag"><div class="k">المغرب</div><div class="v mono" id="ptMag">—</div></div>
+                <div class="ptile" id="pIsha"><div class="k">العشاء</div><div class="v mono" id="ptIsha">—</div></div>
+              </div>
+            </div>
+
+            <div class="infoGrid">
+              <div class="ibox">
+                <h3 id="themeTitle">معلومة اليوم</h3>
+                <p id="themeText">—</p>
+                <div class="tagRow">
+                  <span class="tag gold" id="ayahRef">آية: —</span>
+                  <span class="tag sky" id="hadithRef">حديث: —</span>
+                </div>
+              </div>
+
+              <div class="ibox">
+                <h3>دعاء اليوم (قصير)</h3>
+                <p id="duaText">—</p>
+                <div class="tagRow">
+                  <span class="tag green" id="actionTag">عمل اليوم: —</span>
+                </div>
+              </div>
+
+              <div class="ibox">
+                <h3>رمضان عبر التاريخ</h3>
+                <p id="histText">—</p>
+                <div class="tagRow">
+                  <span class="tag gold" id="histTag">—</span>
+                </div>
+              </div>
+
+              <div class="ibox">
+                <h3>نصيحة للفريق</h3>
+                <p id="tipBox">—</p>
+                <div class="tagRow">
+                  <span class="tag sky">قصيرة • عملية</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button id="newTip" class="alt">نصيحة جديدة</button>
+              <button id="refreshPT" class="alt">تحديث المواقيت</button>
+            </div>
+
+            <details class="details">
+              <summary>المصدر والموثوقية</summary>
+              <div class="tiny" id="methodNote">—</div>
+              <div class="tiny" style="margin-top:8px;">
+                *ملاحظة:* بعض الأحداث التاريخية قد تختلف تواريخها بين المصادر، لذلك نعرضها مع تنبيه عند وجود اختلاف.
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="hd">
+            <h2>حالة السير — Google Maps</h2>
+            <p>طبقة السير (Traffic) + “نقاط ساخنة” مميزة بصريًا (Heavy/Medium/Light).</p>
+          </div>
+
+          <div class="bd">
+            <div class="mapTop">
+              <div class="mapControls">
+                <button id="toggleTraffic" class="alt">إظهار/إخفاء السير</button>
+                <button id="resetMap" class="alt">عمّان</button>
+              </div>
+              <div class="tiny">
+                ملاحظة: ألوان السير نفسها من Google Traffic Layer. “النقاط الساخنة” هنا للتبويب السريع وتظليل مناطق مهمة.
+              </div>
+            </div>
+
+            <div class="mapWrap">
+              <div id="map" class="map"></div>
+              <div class="mapBadge">
+                <span class="pill b-heavy">ازدحام عالي</span>
+                <span class="pill b-med">متوسط</span>
+                <span class="pill b-light">خفيف</span>
+              </div>
+            </div>
+
+            <div class="hotspots" id="hotspots"></div>
+
+            <details class="details">
+              <summary>كيف تعمل “الهايلايت”؟</summary>
+              <div class="tiny">
+                Google Traffic Layer يعرض الازدحام بالألوان مباشرة (أحمر/برتقالي/أخضر). أمّا تمييز “مناطق مهمة” في قائمتنا،
+                فهو نظام سريع: تضغط المنطقة لعمل Zoom + تظليل دائري + تغيير الحالة (عالي → متوسط → خفيف → …) ويحفظ محلياً.
+              </div>
+            </details>
+          </div>
+
+          <div class="footer">
+            لتفعيل الخريطة تحتاج <b>Google Maps API Key</b> (تضعه في <span class="mono">docs/app.js</span>).
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"><b id="toastT">—</b><div class="tiny" id="toastB"></div></div>
+
+  <script src="./data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
