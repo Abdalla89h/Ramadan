@@ -1,299 +1,305 @@
-/* Modern Islamic theme (RTL) */
-:root{
-  --bg0:#050912; --bg1:#071321; --bg2:#0a1f23; --bg3:#0b2b2a;
-  --card:rgba(255,255,255,.06);
-  --card2:rgba(255,255,255,.09);
-  --line:rgba(255,255,255,.12);
-  --txt:rgba(255,255,255,.92);
-  --muted:rgba(255,255,255,.72);
-  --muted2:rgba(255,255,255,.55);
-  --gold:#d7b56d; --gold2:#f6e3b4;
-  --emerald:#39d5b0; --sky:#7fd6ff;
-  --ok:#43d39e; --warn:#ffd166; --bad:#ff6b87;
-  --shadow:0 22px 56px rgba(0,0,0,.42);
-  --r:20px;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:"Tajawal", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
-  color:var(--txt);
-  background:
-    radial-gradient(1100px 640px at 80% 10%, rgba(127,214,255,.16), transparent 60%),
-    radial-gradient(900px 600px at 18% 6%, rgba(215,181,109,.12), transparent 62%),
-    radial-gradient(900px 620px at 50% 110%, rgba(57,213,176,.10), transparent 55%),
-    linear-gradient(180deg,var(--bg0), var(--bg1) 40%, var(--bg2) 70%, var(--bg3));
-  min-height:100vh;
-  overflow-x:hidden;
-}
-.pattern{
-  position:fixed; inset:-40px;
-  pointer-events:none;
-  opacity:.14;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.35' stroke-width='1'%3E%3Cpath d='M120 18 L150 48 L120 78 L90 48 Z'/%3E%3Cpath d='M120 78 L150 108 L120 138 L90 108 Z'/%3E%3Cpath d='M120 138 L150 168 L120 198 L90 168 Z'/%3E%3Cpath d='M18 120 L48 90 L78 120 L48 150 Z'/%3E%3Cpath d='M78 120 L108 90 L138 120 L108 150 Z'/%3E%3Cpath d='M138 120 L168 90 L198 120 L168 150 Z'/%3E%3Cpath d='M198 120 L228 90 L240 102 M240 138 L228 150 L198 120 Z'/%3E%3Cpath d='M0 102 L12 90 L42 120 L12 150 L0 138'/%3E%3C/g%3E%3C/svg%3E");
-  background-size:240px 240px;
-  mix-blend-mode:overlay;
-  filter: blur(.2px);
-}
-.wrap{max-width:1240px; margin:auto; padding:18px 18px 34px; position:relative;}
-.top{display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:flex-end; margin-bottom:14px;}
-.brand{display:flex; gap:12px; align-items:center}
-.crest{
-  width:56px; height:56px; border-radius:18px;
-  background:
-    radial-gradient(circle at 35% 35%, rgba(246,227,180,.34), rgba(215,181,109,.12) 55%, rgba(255,255,255,.04)),
-    linear-gradient(180deg, rgba(255,255,255,.06), transparent);
-  border:1px solid rgba(215,181,109,.35);
-  box-shadow:0 18px 48px rgba(0,0,0,.30);
-  display:grid; place-items:center;
-}
-h1{margin:0; font-size:clamp(22px,2.4vw,34px); font-weight:900; letter-spacing:.2px}
-.brand p{margin:6px 0 0; color:var(--muted); font-size:14px; line-height:1.55}
-.brand p b{color:rgba(255,255,255,.92)}
-.chips{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
-.chip{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:999px;
-  padding:9px 12px;
-  display:flex; gap:10px; align-items:center;
-  backdrop-filter: blur(10px);
-  box-shadow:0 12px 28px rgba(0,0,0,.22);
-  white-space:nowrap;
-}
-.dot{width:9px;height:9px;border-radius:50%; background:var(--sky); box-shadow:0 0 0 6px rgba(127,214,255,.10)}
-.dot.ok{background:var(--ok); box-shadow:0 0 0 6px rgba(67,211,158,.12)}
-.dot.warn{background:var(--warn); box-shadow:0 0 0 6px rgba(255,209,102,.12)}
-.dot.bad{background:var(--bad); box-shadow:0 0 0 6px rgba(255,107,135,.12)}
-.chip .k{color:var(--muted2); font-size:12px}
-.chip .v{font-weight:900; font-size:14px}
-.mono{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" 1}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة رمضان — عمّان</title>
+  <meta name="description" content="لوحة رمضان للفريق: الاسم + وقت الدخول فقط، خروج تلقائي (6.5 ساعات)، مواقيت عمّان، عدّاد الإفطار، وخريطة السير (Google Maps Traffic)." />
 
-.grid{display:grid; grid-template-columns:1.08fr 1fr; gap:14px;}
-@media (max-width:1040px){ .grid{grid-template-columns:1fr;} }
-.stack{display:grid; grid-template-rows:auto auto; gap:14px;}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 
-.card{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:var(--r);
-  box-shadow:var(--shadow);
-  backdrop-filter: blur(10px);
-  overflow:hidden;
-}
-.hd{
-  padding:16px 16px 10px;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  background:
-    radial-gradient(920px 220px at 82% 0%, rgba(215,181,109,.16), transparent 62%),
-    radial-gradient(860px 220px at 18% 0%, rgba(57,213,176,.10), transparent 62%),
-    linear-gradient(180deg, rgba(255,255,255,.06), transparent);
-}
-.hd h2{margin:0; font-size:18px; font-weight:900}
-.hd p{margin:6px 0 0; color:var(--muted); font-size:13px; line-height:1.55}
-.bd{padding:14px 16px 16px}
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+  <div class="wrap">
 
-label{display:block; font-size:12px; color:var(--muted2); margin-bottom:6px}
-input,button{
-  font-family:inherit;
-  width:100%;
-  padding:12px 12px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(0,0,0,.22);
-  color:var(--txt);
-  outline:none;
-}
-input::placeholder{color:rgba(255,255,255,.40)}
-button{
-  cursor:pointer;
-  border:none;
-  font-weight:900;
-  color:#061517;
-  background:linear-gradient(135deg, var(--gold), var(--gold2));
-  box-shadow:0 14px 28px rgba(0,0,0,.25);
-}
-button.alt{
-  background:rgba(255,255,255,.10);
-  color:var(--txt);
-  border:1px solid rgba(255,255,255,.14);
-  box-shadow:none;
-}
-.row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-@media (max-width:650px){ .row{grid-template-columns:1fr;} }
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="34" height="34" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M39 9.3C27.5 11 19 21 19 33c0 13.3 10.7 24 24 24 4.8 0 9.2-1.4 12.9-3.8C52.2 59.1 45.5 63 38 63 25.3 63 15 52.7 15 40 15 25.2 28 13.4 39 9.3Z" fill="rgba(246,227,180,.95)"/>
+            <path d="M52.4 14.2l1.9 4.3 4.7.3-3.6 2.9 1.3 4.5-4.3-2.6-4.3 2.6 1.3-4.5-3.6-2.9 4.7-.3 1.9-4.3Z" fill="rgba(215,181,109,.95)"/>
+          </svg>
+        </div>
+        <div>
+          <div class="title">لوحة رمضان — عمّان</div>
+          <div class="subtitle">إدخال <b>الاسم</b> + <b>وقت الدخول</b> فقط. <b>الخروج = دخولك + 6.5 ساعات</b> (بدون أي إضافة لوقت الصلاة).</div>
+        </div>
+      </div>
 
-.kpiGrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px}
-@media (max-width:650px){ .kpiGrid{grid-template-columns:1fr;} }
+      <div class="statusRow">
+        <div class="pillStatus">
+          <span id="apiDot" class="dot warn"></span>
+          <span class="k">البيانات</span>
+          <span class="v" id="apiStatus">تحميل…</span>
+        </div>
+        <div class="pillStatus">
+          <span class="k">الآن (عمّان)</span>
+          <span class="v mono" id="nowClock">—</span>
+        </div>
+        <div class="pillStatus">
+          <span class="k">هجري</span>
+          <span class="v" id="hijriLine">—</span>
+        </div>
+        <div class="pillStatus">
+          <span class="k">رمضان</span>
+          <span class="v" id="ramadanLine">—</span>
+        </div>
+      </div>
+    </header>
 
-.kpi{
-  background:var(--card2);
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:16px;
-  padding:12px;
-  display:flex;
-  gap:12px;
-  align-items:center;
-  min-height:96px;
-}
-.kpi .meta{flex:1}
-.kpi .k{color:var(--muted2); font-size:12px}
-.kpi .v{font-size:20px; font-weight:900; margin-top:4px}
-.kpi .s{color:var(--muted); font-size:12px; margin-top:4px; line-height:1.4}
+    <!-- Hero -->
+    <section class="hero">
+      <div class="heroLeft">
+        <div class="heroKicker">ترتيب يومك في رمضان… بدون دراما.</div>
+        <h1>أدخل دخولك — والباقي يُحسب تلقائياً.</h1>
+        <p>
+          خروج تلقائي (6.5 ساعات)، عدّاد الإفطار، الصلاة القادمة، وخريطة سير مباشرة داخل عمّان.
+        </p>
 
-.ring{width:66px; height:66px; flex:0 0 66px; display:grid; place-items:center; position:relative}
-.ring svg{transform: rotate(-90deg)}
-.ringBase{stroke:rgba(255,255,255,.12); stroke-width:8; fill:none}
-.ringGold{stroke:rgba(215,181,109,.95); stroke-width:8; fill:none; stroke-linecap:round; stroke-dasharray:176; stroke-dashoffset:176}
-.ringGreen{stroke:rgba(57,213,176,.95); stroke-width:8; fill:none; stroke-linecap:round; stroke-dasharray:176; stroke-dashoffset:176}
-.ringSky{stroke:rgba(127,214,255,.95); stroke-width:8; fill:none; stroke-linecap:round; stroke-dasharray:176; stroke-dashoffset:176}
-.ringWarn{stroke:rgba(255,209,102,.95); stroke-width:8; fill:none; stroke-linecap:round; stroke-dasharray:176; stroke-dashoffset:176}
-.ring .txt{
-  position:absolute; inset:0;
-  display:grid; place-items:center;
-  font-weight:900;
-  font-size:12px;
-  color:rgba(255,255,255,.90);
-}
-.ring .txt small{display:block; font-size:10px; color:rgba(255,255,255,.65); font-weight:800}
+        <div class="quickGrid">
+          <div class="qcard">
+            <div class="qk">متبقي على الإفطار</div>
+            <div class="qv mono"><span id="tH">—</span>:<span id="tM">—</span>:<span id="tS">—</span></div>
+            <div class="qs mono" id="iftarAt">—</div>
+          </div>
+          <div class="qcard">
+            <div class="qk">الصلاة القادمة</div>
+            <div class="qv" id="nextPrayer">—</div>
+            <div class="qs mono" id="nextPrayerS">—</div>
+          </div>
+          <div class="qcard">
+            <div class="qk">الفجر / المغرب</div>
+            <div class="qv mono"><span id="fajrTime">—</span> • <span id="maghribTime">—</span></div>
+            <div class="qs">مواقيت عمّان اليوم</div>
+          </div>
+        </div>
+      </div>
 
-.hero{
-  border-radius:18px;
-  background:
-    radial-gradient(700px 220px at 85% 0%, rgba(127,214,255,.12), transparent 60%),
-    radial-gradient(800px 220px at 15% 0%, rgba(215,181,109,.14), transparent 62%),
-    rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.10);
-  padding:14px;
-}
-.heroTop{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:flex-end}
-.heroTitle{font-weight:900}
-.timer{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;}
-.tbox{
-  min-width:92px;
-  background:rgba(0,0,0,.20);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:16px;
-  padding:10px 12px;
-  text-align:center;
-}
-.tbox .num{font-size:24px; font-weight:900}
-.tbox .lab{font-size:12px; color:var(--muted2); margin-top:2px; font-weight:800}
+      <div class="heroRight">
+        <div class="glass">
+          <div class="glassTop">
+            <div class="glassTitle">دوامك اليوم</div>
+            <div class="badge">ثابت: 6.5 ساعات</div>
+          </div>
 
-.timeline{display:grid; grid-template-columns:repeat(6, 1fr); gap:8px; margin-top:12px;}
-@media (max-width:760px){ .timeline{grid-template-columns:repeat(3, 1fr);} }
-.ptile{
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:14px;
-  padding:10px;
-}
-.ptile .k{font-size:12px; color:var(--muted2); font-weight:900}
-.ptile .v{font-size:14px; font-weight:900; margin-top:4px}
-.ptile.active{
-  border-color:rgba(215,181,109,.55);
-  box-shadow: 0 0 0 4px rgba(215,181,109,.10);
-  background:rgba(215,181,109,.08);
-}
+          <div class="form">
+            <div class="field">
+              <label>الاسم</label>
+              <input id="name" placeholder="مثال: أحمد" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label>وقت الدخول (بصمة)</label>
+              <input id="inTime" type="time" />
+            </div>
+          </div>
 
-.infoGrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;}
-@media (max-width:760px){ .infoGrid{grid-template-columns:1fr;} }
-.ibox{
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:16px;
-  padding:12px;
-}
-.ibox h3{margin:0; font-size:14px; font-weight:900}
-.ibox p{margin:8px 0 0; color:var(--muted); font-size:12px; line-height:1.7}
+          <div class="result">
+            <div class="big">
+              <div class="bigK">الخروج المتوقع</div>
+              <div class="bigV mono" id="kOut">—</div>
+              <div class="bigS" id="kOutS">—</div>
+            </div>
 
-.tagRow{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
-.tag{
-  display:inline-flex; gap:6px; align-items:center;
-  padding:6px 10px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(0,0,0,.14);
-  color:rgba(255,255,255,.82);
-  font-weight:900;
-  font-size:12px;
-}
-.tag.gold{border-color:rgba(215,181,109,.35); background:rgba(215,181,109,.10)}
-.tag.green{border-color:rgba(67,211,158,.35); background:rgba(67,211,158,.10)}
-.tag.sky{border-color:rgba(127,214,255,.35); background:rgba(127,214,255,.10)}
+            <div class="miniGrid">
+              <div class="mini">
+                <div class="mk">متبقي للخروج</div>
+                <div class="mv mono" id="kLeft">—</div>
+                <div class="ms" id="kLeftS">—</div>
+              </div>
+              <div class="mini">
+                <div class="mk">تقدم الدوام</div>
+                <div class="mv mono" id="workPct">—</div>
+                <div class="ms">من لحظة دخولك</div>
+              </div>
+              <div class="mini">
+                <div class="mk">تقدم الصيام</div>
+                <div class="mv mono" id="fastProg">—</div>
+                <div class="ms" id="fastProgS">—</div>
+              </div>
+            </div>
 
-.actions{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px}
-@media (max-width:650px){ .actions{grid-template-columns:1fr;} }
+            <div class="barWrap">
+              <div class="bar">
+                <div class="barFill" id="workBar"></div>
+              </div>
+              <div class="barHint">شريط الدوام (مباشر)</div>
+            </div>
+          </div>
 
-.details{
-  margin-top:12px;
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:16px;
-  padding:10px;
-}
-.details summary{cursor:pointer; font-weight:900}
-.tiny{font-size:12px; color:var(--muted); line-height:1.7; margin-top:8px}
-.tableWrap{overflow:auto; margin-top:10px}
-table{width:100%; border-collapse:collapse; font-size:13px}
-th,td{padding:8px; border-bottom:1px solid rgba(255,255,255,.08); text-align:right}
-th{color:var(--muted); font-size:12px}
-tr:last-child td{border-bottom:none}
+          <div class="actions">
+            <button id="calcBtn" class="primary">تحديث</button>
+            <button id="saveBtn" class="ghost">حفظ دخول اليوم</button>
+          </div>
 
-.mapTop{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center}
-.mapControls{display:flex; gap:10px; flex-wrap:wrap}
-.mapWrap{
-  margin-top:12px;
-  border-radius:18px; overflow:hidden;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(0,0,0,.18);
-  position:relative;
-}
-.map{width:100%; height:380px}
-.mapBadge{
-  position:absolute;
-  left:12px;
-  bottom:12px;
-  display:flex; gap:8px; flex-wrap:wrap;
-  background:rgba(5,9,18,.55);
-  border:1px solid rgba(255,255,255,.10);
-  padding:8px;
-  border-radius:14px;
-  backdrop-filter: blur(10px);
-}
-.pill{
-  padding:6px 10px; border-radius:999px; font-size:12px; font-weight:900;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(0,0,0,.14);
-  white-space:nowrap;
-}
-.b-heavy{border-color:rgba(255,107,135,.45); background:rgba(255,107,135,.14)}
-.b-med{border-color:rgba(255,209,102,.45); background:rgba(255,209,102,.14)}
-.b-light{border-color:rgba(67,211,158,.45); background:rgba(67,211,158,.14)}
+          <details class="drawer">
+            <summary>السجل والتصدير (محلي)</summary>
+            <div class="drawerBody">
+              <div class="tiny">يحفظ داخل المتصفح فقط. لا يتم إرسال أي بيانات للخارج.</div>
+              <div class="tableWrap">
+                <table>
+                  <thead><tr><th>التاريخ</th><th>الاسم</th><th>دخول</th><th>خروج متوقع</th></tr></thead>
+                  <tbody id="logBody"><tr><td colspan="4" class="tiny">لا يوجد سجل بعد.</td></tr></tbody>
+                </table>
+              </div>
+              <div class="tiny" id="logStats">—</div>
+              <div class="actions2">
+                <button id="exportCSV" class="ghost">تصدير CSV</button>
+                <button id="clearLog" class="ghost danger">مسح السجل</button>
+              </div>
+            </div>
+          </details>
 
-.hotspots{margin-top:12px; display:grid; grid-template-columns:1fr; gap:8px;}
-.hot{
-  display:flex; justify-content:space-between; align-items:center; gap:10px;
-  padding:10px 12px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(255,255,255,.05);
-  cursor:pointer;
-  transition: transform .06s ease, background .2s ease;
-}
-.hot:hover{transform: translateY(-1px); background:rgba(255,255,255,.06)}
-.hot .name{font-weight:900}
-.hot .meta{color:var(--muted2); font-size:12px}
+          <div class="tiny footnote">ملاحظة: مواقيت الصلاة والعدّادات للعرض/التخطيط فقط — لا تدخل ضمن ساعات الدوام.</div>
+        </div>
+      </div>
+    </section>
 
-.footer{padding:14px 18px; color:rgba(255,255,255,.58); font-size:12px; line-height:1.7;}
-.toast{
-  position:fixed; left:16px; bottom:16px;
-  width:min(420px, calc(100vw - 32px));
-  background:rgba(10,15,25,.88);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:16px;
-  box-shadow:0 18px 48px rgba(0,0,0,.45);
-  padding:12px; display:none;
-  backdrop-filter: blur(10px);
-  z-index:9999;
-}
-.toast b{display:block; margin-bottom:4px}
+    <!-- Main Grid -->
+    <main class="grid">
+
+      <!-- Ramadan Content -->
+      <section class="card">
+        <div class="cardHead">
+          <div>
+            <div class="cardTitle">رمضان اليوم</div>
+            <div class="cardSub">معلومة مفيدة + دعاء قصير + حدث تاريخي (مبسط) + نصيحة عملية للفريق.</div>
+          </div>
+          <div class="cardTools">
+            <button id="newTip" class="ghost">نصيحة جديدة</button>
+            <button id="refreshPT" class="ghost">تحديث المواقيت</button>
+          </div>
+        </div>
+
+        <div class="cardBody">
+          <div class="tiles">
+            <div class="tile gold">
+              <div class="tk">رمضان</div>
+              <div class="tv" id="ramDay">—</div>
+              <div class="ts">يوم الشهر</div>
+            </div>
+            <div class="tile sky">
+              <div class="tk">المغرب</div>
+              <div class="tv mono" id="ptMag">—</div>
+              <div class="ts">وقت الإفطار</div>
+            </div>
+            <div class="tile green">
+              <div class="tk">الفجر</div>
+              <div class="tv mono" id="ptFajr">—</div>
+              <div class="ts">بداية الصيام</div>
+            </div>
+            <div class="tile">
+              <div class="tk">العشاء</div>
+              <div class="tv mono" id="ptIsha">—</div>
+              <div class="ts">قيام/تراويح</div>
+            </div>
+          </div>
+
+          <div class="contentGrid">
+            <article class="contentCard">
+              <div class="cTop">
+                <div class="cTitle" id="themeTitle">معلومة اليوم</div>
+                <div class="chipRow">
+                  <span class="chip gold" id="ayahRef">آية: —</span>
+                  <span class="chip sky" id="hadithRef">حديث: —</span>
+                </div>
+              </div>
+              <p class="cText" id="themeText">—</p>
+            </article>
+
+            <article class="contentCard">
+              <div class="cTop">
+                <div class="cTitle">دعاء اليوم</div>
+                <span class="chip green" id="actionTag">عمل اليوم: —</span>
+              </div>
+              <p class="cText" id="duaText">—</p>
+            </article>
+
+            <article class="contentCard">
+              <div class="cTop">
+                <div class="cTitle">رمضان عبر التاريخ</div>
+                <span class="chip gold" id="histTag">—</span>
+              </div>
+              <p class="cText" id="histText">—</p>
+            </article>
+
+            <article class="contentCard">
+              <div class="cTop">
+                <div class="cTitle">نصيحة للفريق</div>
+                <span class="chip">قصيرة • عملية</span>
+              </div>
+              <p class="cText" id="tipBox">—</p>
+            </article>
+          </div>
+
+          <details class="drawer">
+            <summary>المصدر والموثوقية</summary>
+            <div class="drawerBody">
+              <div class="tiny" id="methodNote">—</div>
+              <div class="tiny" style="margin-top:8px;">
+                ملاحظة: بعض الأحداث التاريخية قد تختلف تواريخها بين المصادر؛ نعرضها بصيغة مبسطة مع تنبيه عند وجود اختلاف.
+              </div>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Traffic -->
+      <section class="card tall">
+        <div class="cardHead">
+          <div>
+            <div class="cardTitle">حالة السير — عمّان</div>
+            <div class="cardSub">Google Traffic Layer + قائمة “مناطق مهمة” للـ Zoom والتظليل.</div>
+          </div>
+          <div class="cardTools">
+            <button id="toggleTraffic" class="ghost">إظهار/إخفاء السير</button>
+            <button id="resetMap" class="ghost">إعادة ضبط</button>
+          </div>
+        </div>
+
+        <div class="cardBody">
+          <div class="mapLayout">
+            <div class="mapWrap">
+              <div id="map" class="map"></div>
+              <div class="legend">
+                <span class="lg heavy">Heavy</span>
+                <span class="lg med">Medium</span>
+                <span class="lg light">Light</span>
+              </div>
+            </div>
+
+            <aside class="side">
+              <div class="sideTitle">مناطق مهمة</div>
+              <div class="sideSub">اضغط المنطقة للـ Zoom وتغيير الحالة (محلياً).</div>
+              <div class="hotspots" id="hotspots"></div>
+
+              <details class="drawer">
+                <summary>ماذا تعني “الحالة”؟</summary>
+                <div class="drawerBody">
+                  <div class="tiny">
+                    ألوان السير الحقيقية تظهر على الخريطة مباشرة (Traffic Layer).
+                    “الحالة” هنا هي تمييز سريع لفريقك: تحددون مناطق ازدحام عادةً (عالي/متوسط/خفيف) لتسهيل التخطيط.
+                    يتم حفظها محلياً داخل المتصفح.
+                  </div>
+                </div>
+              </details>
+
+              <div class="tiny footnote">لتفعيل الخريطة تحتاج <b>Google Maps API Key</b> داخل <span class="mono">docs/app.js</span>.</div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="toast" id="toast"><b id="toastT">—</b><div class="tiny" id="toastB"></div></div>
+
+  <script src="./data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

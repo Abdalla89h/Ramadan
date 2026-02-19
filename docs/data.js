@@ -1,71 +1,437 @@
-// Ramadan content (Arabic)
-const RAMADAN_TIPS = [
-  "قسّم مهامك: 25 دقيقة تركيز + 5 دقائق راحة. رمضان يحب الإيقاع.",
-  "بعد العصر: اجعلها مراجعات واتصالات قصيرة، لا مهام عميقة.",
-  "اشرب ماء تدريجياً بين الإفطار والسحور — الجفاف يسرق الإنتاجية.",
-  "خفّف السكر عند الإفطار؛ ارتفاع/هبوط السكر يسبب خمول سريع.",
-  "الاجتماعات: هدف واحد + زمن محدد. غير هيك “فوضى لطيفة”.",
-  "قبل المغرب بساعة: اغلق المهام الثقيلة وخطّط لليوم التالي."
-];
+/* Ramadan Dashboard v2 — clean modern Islamic UI (RTL) */
+:root{
+  --bg0:#040812; --bg1:#071528; --bg2:#0a1f23; --bg3:#0c2c2a;
+  --card:rgba(255,255,255,.06);
+  --card2:rgba(255,255,255,.09);
+  --line:rgba(255,255,255,.12);
+  --txt:rgba(255,255,255,.92);
+  --muted:rgba(255,255,255,.72);
+  --muted2:rgba(255,255,255,.55);
+  --gold:#d7b56d; --gold2:#f6e3b4;
+  --emerald:#39d5b0; --sky:#7fd6ff;
+  --ok:#43d39e; --warn:#ffd166; --bad:#ff6b87;
+  --shadow:0 22px 56px rgba(0,0,0,.42);
+  --r:22px;
+  --blur:12px;
+}
 
-const RAMADAN_DAILY = Array.from({length:30}, (_,i)=>{
-  const day=i+1;
-  const themes = ["النية والبداية","الرحمة","الهدوء الداخلي","الصدق مع النفس","الاستمرارية","مراجعة العادات","خفض الضوضاء","الإحسان في العمل","الذكر الخفيف","الامتنان","حسن الخلق","الاستغفار","إتقان العمل","العفو","صلة الرحم","الدعاء","الثبات","إطعام الطعام","التخفف","الفتح","العشر الأواخر","قيام الليل","القرآن","الوتر","العطاء","الاحتساب","التركيز على الجوهر","تهذيب اللسان","الاستعداد للعيد","خاتمة قوية"];
-  const ayahRefs = ["البقرة 183","البقرة 185","الأحزاب 41","الحشر 18","العصر 1–3","الفرقان 63","الشرح 5–6","المؤمنون 1–11","الرعد 28","إبراهيم 7","القلم 4","الزمر 53","القصص 77","النور 22","محمد 22–23","غافر 60","فصلت 30","الإنسان 8–9","الحديد 20","الفتح 1","القدر 1–5","المزمل 1–6","الإسراء 9","البقرة 186","البقرة 261","التوبة 120","الأعلى 14–15","ق 18","التكاثر 1–2","آل عمران 133–136"];
-  const hadithRefs = ["النية","الصوم جُنّة","دعاء الصائم","من فطّر صائماً","أحب الأعمال أدومها","الرفق","تبسّمك صدقة","إماطة الأذى","لا تحقرن من المعروف","حسن الخلق","استغفروا","إتقان العمل","العفو","صلة الرحم","الدعاء","الاستقامة","إطعام الطعام","الزهد","الفتح","قيام رمضان","الوتر","القرآن","تحرّوا ليلة القدر","الصدقة","الاحتساب","اليسر","حفظ اللسان","العيد","خاتمة","خاتمة"];
-  const takeaways = [
-    "حدّد نيتك اليوم بجملة واحدة: “لله… ولنفسي… ولأسرتي…”.",
-    "ارحم نفسك: لا تكدّس 10 أهداف. هدفان يكفون.",
-    "خفّض سرعة اليوم 10%… سترتفع الجودة 30%.",
-    "اسأل: ما الشيء الذي أتهرب منه؟ ابدأ به 15 دقيقة.",
-    "الالتزام الصغير يومياً أقوى من اندفاعة كبيرة مرة واحدة.",
-    "بدّل عادة واحدة: قلّل سوشال/سهر… وراقب الفرق.",
-    "نقّي بيئة العمل: تبويبة واحدة. مهمة واحدة.",
-    "الإحسان: ردّ سريع ومحترم = انطباع قوي.",
-    "اذكر الله “خفيف”: تسبيح أثناء المشي أو القيادة.",
-    "اكتب 3 نعم في دقيقة. نعم… دقيقة فقط.",
-    "خُلُق اليوم: لا تردّ بانفعال. تأخير 10 ثواني يكفي.",
-    "استغفار قصير متفرق… يفرّغ الضغط.",
-    "إتقان: أنهي مهمة واحدة بامتياز بدلاً من ثلاث بنصف جودة.",
-    "سامح مرة واحدة اليوم (حتى لو داخلياً).",
-    "اتصل بقريب/صديق قديم: 2 دقيقة تكفي.",
-    "اجعل دعاءك محدداً: “يا رب ارزقني… في… قبل…”.",
-    "الثبات: خطوتان يومياً أفضل من خطة مثالية لا تبدأ.",
-    "إفطار صائم ولو بماء/تمرة… أثره كبير.",
-    "خفّف الأشياء: قلّل المشتتات، تزيد الطمأنينة.",
-    "فتح اليوم: افتح صفحة جديدة مع شخص/مهمة.",
-    "العشر: اغلق الهاتف 20 دقيقة لعبادة/قرآن.",
-    "قيام بسيط: ركعتان + وتر. جودة قبل كمية.",
-    "اقرأ صفحة بتدبر: اسأل “كيف أطبق؟”.",
-    "وتر اليوم: قبل النوم. لا تعقّدها.",
-    "صدقة صغيرة يومياً… حتى لو سرّاً.",
-    "احتساب: اربط التعب بالمعنى… يخف الألم.",
-    "قائمة 3 مهام فقط. لا تقتل نفسك.",
-    "حفظ اللسان: لا غيبة، لا جدال، لا تنظير.",
-    "خطط للعيد مبكراً: التزامات أقل = فرح أكثر.",
-    "خاتمة: اختر عادة واحدة تكملها بعد رمضان."
-  ];
-  const duas = [
-    "اللهم تقبّل منا الصيام والقيام، واهدِنا لأحسن الأعمال.",
-    "اللهم اجعل لنا من كل همّ فرجاً ومن كل ضيق مخرجاً.",
-    "اللهم ارزقنا طمأنينة القلب وصدق النية وحسن الخاتمة."
-  ];
-  const actions = ["رسالة شكر لشخص واحد","إنهاء مهمة واحدة “مؤجلة”","صدقة صغيرة","قراءة صفحتين قرآن","صلة رحم (اتصال سريع)","مساعدة زميل"];
-  return {day, theme:themes[i]||"معلومة اليوم", ayah:ayahRefs[i]||"—", hadith:hadithRefs[i]||"—", takeaway:takeaways[i]||"—", dua:duas[i%duas.length], action:actions[i%actions.length]};
-});
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:"Tajawal", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+  color:var(--txt);
+  background:
+    radial-gradient(1200px 740px at 80% 12%, rgba(127,214,255,.16), transparent 60%),
+    radial-gradient(980px 640px at 16% 8%, rgba(215,181,109,.12), transparent 62%),
+    radial-gradient(980px 700px at 52% 112%, rgba(57,213,176,.10), transparent 55%),
+    linear-gradient(180deg,var(--bg0), var(--bg1) 42%, var(--bg2) 72%, var(--bg3));
+  overflow-x:hidden;
+}
 
-const RAMADAN_HISTORY = [
-  {day:10, title:"وفاة السيدة خديجة رضي الله عنها", text:"توفيت أم المؤمنين خديجة رضي الله عنها في رمضان (مشهوراً 10 رمضان) في عام الحزن.", tag:"10 رمضان (مشهور)"},
-  {day:17, title:"غزوة بدر الكبرى (2 هـ)", text:"وقعت غزوة بدر في 17 رمضان 2 هـ — حدث مفصلي في التاريخ الإسلامي.", tag:"17 رمضان (موثّق)"},
-  {day:20, title:"فتح مكة (8 هـ)", text:"يُذكر فتح مكة في رمضان 8 هـ، مع اختلاف في اليوم الدقيق بين بعض المصادر.", tag:"رمضان 8 هـ (اختلاف)"},
-];
+.bg{
+  position:fixed; inset:-40px; pointer-events:none; opacity:.18; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.35' stroke-width='1'%3E%3Cpath d='M120 14 L152 46 L120 78 L88 46 Z'/%3E%3Cpath d='M120 78 L152 110 L120 142 L88 110 Z'/%3E%3Cpath d='M120 142 L152 174 L120 206 L88 174 Z'/%3E%3Cpath d='M14 120 L46 88 L78 120 L46 152 Z'/%3E%3Cpath d='M78 120 L110 88 L142 120 L110 152 Z'/%3E%3Cpath d='M142 120 L174 88 L206 120 L174 152 Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:240px 240px;
+  filter: blur(.2px);
+}
 
-const AMMAN_HOTSPOTS = [
-  {id:"circle7", name:"الدوّار السابع", meta:"Abdoun / 7th Circle", lat:31.9492, lon:35.8666},
-  {id:"sweifieh", name:"الصويفية", meta:"Wakalat / Sweifieh", lat:31.9519, lon:35.8606},
-  {id:"shmeisani", name:"الشميساني", meta:"Shmeisani", lat:31.9636, lon:35.9031},
-  {id:"gardens", name:"شارع الجاردنز", meta:"Gardens St", lat:31.9921, lon:35.8634},
-  {id:"mecca", name:"شارع مكة", meta:"Mecca St", lat:31.9548, lon:35.8546},
-  {id:"tabarbour", name:"طبربور", meta:"Tabarbour", lat:32.0234, lon:35.9295},
-  {id:"airport", name:"طريق المطار", meta:"Airport Rd", lat:31.8797, lon:35.8856},
-];
+.wrap{max-width:1260px; margin:auto; padding:18px 18px 44px; position:relative}
+.mono{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" 1}
+
+.topbar{
+  display:flex; gap:14px; justify-content:space-between; align-items:flex-end; flex-wrap:wrap;
+  padding:10px 6px 14px;
+}
+.brand{display:flex; gap:12px; align-items:center}
+.logo{
+  width:56px; height:56px; border-radius:18px;
+  background:
+    radial-gradient(circle at 35% 35%, rgba(246,227,180,.30), rgba(215,181,109,.12) 55%, rgba(255,255,255,.04)),
+    linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+  border:1px solid rgba(215,181,109,.35);
+  box-shadow:0 18px 48px rgba(0,0,0,.30);
+  display:grid; place-items:center;
+}
+.title{font-weight:900; font-size:20px; letter-spacing:.2px}
+.subtitle{color:var(--muted); font-size:13px; line-height:1.55; margin-top:3px}
+.subtitle b{color:rgba(255,255,255,.92)}
+
+.statusRow{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.pillStatus{
+  display:flex; gap:10px; align-items:center;
+  padding:9px 12px; border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.06);
+  box-shadow:0 12px 28px rgba(0,0,0,.22);
+  backdrop-filter: blur(var(--blur));
+}
+.pillStatus .k{color:var(--muted2); font-size:12px; font-weight:900}
+.pillStatus .v{font-weight:900; font-size:13px}
+.dot{width:9px;height:9px;border-radius:50%; background:var(--sky); box-shadow:0 0 0 6px rgba(127,214,255,.10)}
+.dot.ok{background:var(--ok); box-shadow:0 0 0 6px rgba(67,211,158,.12)}
+.dot.warn{background:var(--warn); box-shadow:0 0 0 6px rgba(255,209,102,.12)}
+.dot.bad{background:var(--bad); box-shadow:0 0 0 6px rgba(255,107,135,.12)}
+
+.hero{
+  display:grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  gap:14px;
+  margin-top:6px;
+}
+@media (max-width:1020px){
+  .hero{grid-template-columns:1fr; }
+}
+
+.heroLeft{
+  padding:16px 8px 8px 6px;
+}
+.heroKicker{
+  display:inline-flex; gap:10px; align-items:center;
+  padding:8px 12px; border-radius:999px;
+  background:rgba(215,181,109,.10);
+  border:1px solid rgba(215,181,109,.25);
+  color:rgba(255,255,255,.86);
+  font-weight:900; font-size:12px;
+  width:fit-content;
+}
+.heroLeft h1{
+  margin:12px 0 8px;
+  font-size:clamp(26px,3.3vw,44px);
+  line-height:1.12;
+  letter-spacing:.2px;
+}
+.heroLeft p{
+  margin:0 0 12px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.7;
+  max-width:54ch;
+}
+
+.quickGrid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:10px;
+  margin-top:12px;
+}
+@media (max-width:860px){
+  .quickGrid{grid-template-columns:1fr; }
+}
+.qcard{
+  border-radius:18px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);
+  padding:12px;
+  box-shadow:0 16px 36px rgba(0,0,0,.22);
+  backdrop-filter: blur(var(--blur));
+}
+.qk{color:var(--muted2); font-weight:900; font-size:12px}
+.qv{font-weight:900; font-size:26px; margin-top:6px}
+.qs{color:var(--muted); font-size:12px; margin-top:6px}
+
+.heroRight{display:flex}
+.glass{
+  width:100%;
+  border-radius:var(--r);
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:var(--shadow);
+  backdrop-filter: blur(var(--blur));
+  overflow:hidden;
+  transform: translateZ(0);
+}
+.glassTop{
+  padding:14px 16px;
+  display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+  background:
+    radial-gradient(900px 240px at 84% 0%, rgba(215,181,109,.16), transparent 62%),
+    radial-gradient(900px 240px at 18% 0%, rgba(57,213,176,.10), transparent 62%),
+    linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.glassTitle{font-weight:900; font-size:16px}
+.badge{
+  padding:7px 10px; border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.18);
+  color:rgba(255,255,255,.86);
+  font-weight:900; font-size:12px;
+}
+
+.form{
+  padding:14px 16px 8px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+}
+@media (max-width:560px){
+  .form{grid-template-columns:1fr}
+}
+.field label{display:block; font-size:12px; color:var(--muted2); margin-bottom:6px; font-weight:900}
+input{
+  width:100%;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.22);
+  color:var(--txt);
+  outline:none;
+}
+input::placeholder{color:rgba(255,255,255,.42)}
+
+.result{padding:10px 16px 12px}
+.big{
+  border-radius:18px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);
+  padding:12px;
+}
+.bigK{color:var(--muted2); font-weight:900; font-size:12px}
+.bigV{font-size:34px; font-weight:900; margin-top:6px}
+.bigS{color:var(--muted); font-size:12px; margin-top:4px; line-height:1.6}
+
+.miniGrid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:10px;
+  margin-top:10px;
+}
+@media (max-width:860px){
+  .miniGrid{grid-template-columns:1fr}
+}
+.mini{
+  border-radius:18px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);
+  padding:12px;
+}
+.mk{color:var(--muted2); font-weight:900; font-size:12px}
+.mv{font-weight:900; font-size:18px; margin-top:6px}
+.ms{color:var(--muted); font-size:12px; margin-top:4px; line-height:1.55}
+
+.barWrap{margin-top:12px}
+.bar{
+  height:12px;
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.10);
+  overflow:hidden;
+}
+.barFill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg, rgba(57,213,176,.95), rgba(127,214,255,.85), rgba(215,181,109,.95));
+  border-radius:999px;
+  transition: width .35s ease;
+}
+.barHint{margin-top:8px; color:var(--muted2); font-weight:900; font-size:12px}
+
+.actions{
+  padding:0 16px 14px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+}
+@media (max-width:560px){ .actions{grid-template-columns:1fr} }
+button{
+  font-family:inherit;
+  cursor:pointer;
+  width:100%;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.08);
+  color:var(--txt);
+  font-weight:900;
+}
+button.primary{
+  border:none;
+  color:#061517;
+  background:linear-gradient(135deg, var(--gold), var(--gold2));
+  box-shadow:0 14px 28px rgba(0,0,0,.25);
+}
+button.ghost{
+  background:rgba(255,255,255,.06);
+}
+button.danger{
+  border-color:rgba(255,107,135,.35);
+  background:rgba(255,107,135,.08);
+}
+
+.drawer{
+  margin:0 16px 14px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:18px;
+  padding:10px 12px;
+}
+.drawer summary{cursor:pointer; font-weight:900}
+.drawerBody{padding-top:10px}
+.tiny{font-size:12px; color:var(--muted); line-height:1.7}
+.footnote{margin-top:10px; color:rgba(255,255,255,.58); font-size:12px; line-height:1.7}
+
+.tableWrap{overflow:auto; margin-top:10px}
+table{width:100%; border-collapse:collapse; font-size:13px}
+th,td{padding:8px; border-bottom:1px solid rgba(255,255,255,.08); text-align:right}
+th{color:var(--muted); font-size:12px}
+tr:last-child td{border-bottom:none}
+.actions2{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}
+@media (max-width:560px){ .actions2{grid-template-columns:1fr} }
+
+.grid{
+  display:grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap:14px;
+  margin-top:14px;
+}
+@media (max-width:1100px){
+  .grid{grid-template-columns:1fr}
+}
+
+.card{
+  border-radius:var(--r);
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:var(--shadow);
+  backdrop-filter: blur(var(--blur));
+  overflow:hidden;
+}
+.cardHead{
+  padding:14px 16px;
+  display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;
+  background:
+    radial-gradient(900px 220px at 84% 0%, rgba(215,181,109,.16), transparent 62%),
+    radial-gradient(900px 220px at 18% 0%, rgba(57,213,176,.10), transparent 62%),
+    linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.cardTitle{font-weight:900; font-size:16px}
+.cardSub{color:var(--muted); font-size:12.5px; line-height:1.7; margin-top:4px}
+.cardTools{display:flex; gap:10px; flex-wrap:wrap}
+.cardTools button{width:auto; padding:10px 12px; border-radius:999px}
+
+.cardBody{padding:14px 16px 16px}
+.tiles{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:10px;
+}
+@media (max-width:900px){
+  .tiles{grid-template-columns: repeat(2, 1fr);}
+}
+.tile{
+  border-radius:18px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);
+  padding:12px;
+}
+.tile.gold{border-color:rgba(215,181,109,.30); background:rgba(215,181,109,.08)}
+.tile.sky{border-color:rgba(127,214,255,.30); background:rgba(127,214,255,.08)}
+.tile.green{border-color:rgba(57,213,176,.30); background:rgba(57,213,176,.08)}
+.tk{color:var(--muted2); font-weight:900; font-size:12px}
+.tv{font-weight:900; font-size:22px; margin-top:6px}
+.ts{color:var(--muted); font-size:12px; margin-top:4px}
+
+.contentGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+@media (max-width:900px){ .contentGrid{grid-template-columns:1fr} }
+
+.contentCard{
+  border-radius:18px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);
+  padding:12px;
+}
+.cTop{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap}
+.cTitle{font-weight:900; font-size:14px}
+.cText{margin:8px 0 0; color:var(--muted); font-size:12.5px; line-height:1.9}
+.chipRow{display:flex; gap:8px; flex-wrap:wrap}
+.chip{
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 10px; border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.14);
+  font-weight:900; font-size:12px; color:rgba(255,255,255,.84);
+}
+.chip.gold{border-color:rgba(215,181,109,.35); background:rgba(215,181,109,.10)}
+.chip.sky{border-color:rgba(127,214,255,.35); background:rgba(127,214,255,.10)}
+.chip.green{border-color:rgba(67,211,158,.35); background:rgba(67,211,158,.10)}
+
+.tall .cardBody{padding:0}
+.mapLayout{
+  display:grid;
+  grid-template-columns: 1fr 360px;
+  min-height:560px;
+}
+@media (max-width:1100px){
+  .mapLayout{grid-template-columns:1fr}
+}
+.mapWrap{
+  position:relative;
+  border-left:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.18);
+}
+.map{width:100%; height:100%}
+.legend{
+  position:absolute; left:14px; bottom:14px;
+  display:flex; gap:8px; flex-wrap:wrap;
+  padding:10px;
+  border-radius:16px;
+  background:rgba(4,8,18,.60);
+  border:1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(var(--blur));
+}
+.lg{
+  padding:6px 10px; border-radius:999px; font-size:12px; font-weight:900;
+  border:1px solid rgba(255,255,255,.12);
+}
+.lg.heavy{border-color:rgba(255,107,135,.45); background:rgba(255,107,135,.14)}
+.lg.med{border-color:rgba(255,209,102,.45); background:rgba(255,209,102,.14)}
+.lg.light{border-color:rgba(67,211,158,.45); background:rgba(67,211,158,.14)}
+
+.side{
+  padding:14px 16px 16px;
+  background:rgba(255,255,255,.04);
+}
+.sideTitle{font-weight:900; font-size:14px}
+.sideSub{color:var(--muted); font-size:12px; line-height:1.7; margin-top:4px}
+.hotspots{margin-top:12px; display:grid; gap:8px;}
+.hot{
+  display:flex; justify-content:space-between; align-items:center; gap:10px;
+  padding:10px 12px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.05);
+  cursor:pointer;
+  transition: transform .08s ease, background .18s ease;
+}
+.hot:hover{transform: translateY(-1px); background:rgba(255,255,255,.06)}
+.hot .name{font-weight:900; font-size:13px}
+.hot .meta{color:var(--muted2); font-size:12px; margin-top:2px}
+.pill{
+  padding:6px 10px; border-radius:999px; font-size:12px; font-weight:900;
+  border:1px solid rgba(255,255,255,.12);
+  white-space:nowrap;
+}
+.pill.heavy{border-color:rgba(255,107,135,.45); background:rgba(255,107,135,.14)}
+.pill.med{border-color:rgba(255,209,102,.45); background:rgba(255,209,102,.14)}
+.pill.light{border-color:rgba(67,211,158,.45); background:rgba(67,211,158,.14)}
+
+.toast{
+  position:fixed; left:16px; bottom:16px;
+  width:min(420px, calc(100vw - 32px));
+  background:rgba(10,15,25,.88);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  box-shadow:0 18px 48px rgba(0,0,0,.45);
+  padding:12px;
+  display:none;
+  backdrop-filter: blur(var(--blur));
+  z-index:9999;
+}
+.toast b{display:block; margin-bottom:4px}

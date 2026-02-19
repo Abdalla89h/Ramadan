@@ -1,473 +1,90 @@
-/* Ramadan Dashboard — Google Maps + Prayer Times + minimal input.
-   Put your Google Maps API key below.
-*/
-const GOOGLE_MAPS_API_KEY = "AIzaSyCFk0DglqYA3dHyQ5xhBKVt88UI5v6K4JU"; // <-- replace
-const WORK_HOURS = 6.5; // Strict: no prayer-break additions
-const LS_LOG = "ramadan_log_gmaps_v1";
-const LS_TRAFFIC = "ramadan_hotspots_gmaps_v1";
+// Ramadan content (Arabic) — v2
+const RAMADAN_TIPS = [
+  "ابدأ يومك بـ 3 مهام فقط (Must-do). كل شيء آخر “Nice-to-have”.",
+  "اجعل “المهام الثقيلة” قبل الظهر. بعد العصر: متابعة خفيفة فقط.",
+  "قاعدة رمضان الذهبية: سوائل + نوم مبكر = طاقة أكثر.",
+  "اجتماع رمضان: هدف واحد + قرار واحد + 20 دقيقة حد أقصى.",
+  "قبل المغرب بساعة: لا تبدأ شيئاً كبيراً. اغلق، راجع، وخطّط.",
+  "مكالماتك؟ اجمعها في بلوك واحد بدل التقطيع طوال اليوم."
+];
 
-const $ = (id)=>document.getElementById(id);
-const pad2 = (n)=>String(n).padStart(2,'0');
-const CIRC = 2 * Math.PI * 28;
-
-let toastTimer=null;
-function toast(t,b=""){ $('toastT').textContent=t; $('toastB').textContent=b; $('toast').style.display='block';
-  clearTimeout(toastTimer); toastTimer=setTimeout(()=>$('toast').style.display='none', 2600); }
-
-function setRing(elId, pct){
-  pct = Math.max(0, Math.min(1, pct));
-  const off = CIRC * (1 - pct);
-  const el = $(elId);
-  el.style.strokeDasharray = `${CIRC.toFixed(1)}`;
-  el.style.strokeDashoffset = `${off.toFixed(1)}`;
-}
-
-function parseHM(hm){ const m=/^(\d{2}):(\d{2})$/.exec(hm||""); return m? (Number(m[1])*60+Number(m[2])):null; }
-function hm(min){ min=Math.round(min); const base=((min%1440)+1440)%1440; return `${pad2(Math.floor(base/60))}:${pad2(base%60)}`; }
-function dur(min){ min=Math.round(Math.max(0,min)); const h=Math.floor(min/60), m=min%60; return h===0?`${m} د`:`${h} س ${m} د`; }
-function esc(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-function ammanNow(){
-  const parts = new Intl.DateTimeFormat('en-CA', { timeZone:'Asia/Amman', year:'numeric', month:'2-digit', day:'2-digit',
-    hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false }).formatToParts(new Date());
-  const get=(t)=>parts.find(p=>p.type===t)?.value;
-  return new Date(`${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}:${get('second')}`);
-}
-function todayISO(){ const d=ammanNow(); return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
-
-function setApi(state, text){
-  $('apiStatus').textContent = text;
-  $('apiDot').className = 'dot ' + (state==='ok'?'ok':state==='bad'?'bad':'warn');
-}
-
-let PT=null, HIJRI=null;
-function stripTime(s){ const m=String(s||'').match(/(\d{1,2}:\d{2})/); return m? m[1].padStart(5,'0'):""; }
-
-async function fetchPT(){
-  setApi('warn','تحديث…');
-  try{
-    const r = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=Amman&country=Jordan&method=4`, {cache:'no-store'});
-    const j = await r.json();
-    if(!j || j.code !== 200) throw new Error('bad');
-
-    PT = {
-      Fajr: stripTime(j.data.timings.Fajr),
-      Sunrise: stripTime(j.data.timings.Sunrise),
-      Dhuhr: stripTime(j.data.timings.Dhuhr),
-      Asr: stripTime(j.data.timings.Asr),
-      Maghrib: stripTime(j.data.timings.Maghrib),
-      Isha: stripTime(j.data.timings.Isha),
-    };
-    HIJRI = j.data.date?.hijri || null;
-
-    $('ptFajr').textContent = PT.Fajr; $('ptSun').textContent = PT.Sunrise;
-    $('ptDhuhr').textContent = PT.Dhuhr; $('ptAsr').textContent = PT.Asr;
-    $('ptMag').textContent = PT.Maghrib; $('ptIsha').textContent = PT.Isha;
-    $('fajrTime').textContent = PT.Fajr || '—';
-    $('maghribTime').textContent = PT.Maghrib || '—';
-
-    $('methodNote').textContent = "مصدر المواقيت: AlAdhan API • المدينة: عمّان • طريقة الحساب: MWL";
-
-    if(HIJRI){
-      const day = Number(HIJRI.day);
-      const mAr = HIJRI.month?.ar || HIJRI.month?.en || '';
-      const wd = HIJRI.weekday?.ar || HIJRI.weekday?.en || '';
-      const y = HIJRI.year;
-      $('hijriLine').textContent = `${wd} • ${day} ${mAr} ${y}هـ`;
-
-      if(Number(HIJRI.month?.number)===9){
-        $('ramadanLine').textContent = `${day} رمضان`;
-        $('ramDay').textContent = day;
-        renderDaily(day);
-      }else{
-        $('ramadanLine').textContent = `ليس رمضان حالياً`;
-        $('ramDay').textContent = '—';
-        renderDaily(null);
-      }
-    }else{
-      $('hijriLine').textContent = '—';
-      $('ramadanLine').textContent = '—';
-      $('ramDay').textContent = '—';
-      renderDaily(null);
-    }
-
-    setApi('ok','جاهز');
-    updateAll();
-  }catch(e){
-    console.error(e);
-    setApi('bad','بدون إنترنت');
-  }
-}
-
-function randomTip(){ $('tipBox').textContent = RAMADAN_TIPS[Math.floor(Math.random()*RAMADAN_TIPS.length)]; }
-function historicalForDay(day){
-  const h = RAMADAN_HISTORY.find(x=>x.day===day);
-  if(h) return h;
-  const pool = [
-    {title:"رمضان والقرآن", text:"شهر رمضان مرتبط بإنزال القرآن؛ خصّص وقتاً ثابتاً ولو 10 دقائق.", tag:"رمضان"},
-    {title:"ليلة القدر", text:"ليلة القدر في العشر الأواخر؛ اغتنمها بخطة بسيطة.", tag:"العشر الأواخر"},
-    {title:"ثقافة الإطعام", text:"إطعام الطعام في رمضان من أعظم أبواب الأجر.", tag:"رمضان"},
+const RAMADAN_DAILY = Array.from({length:30}, (_,i)=>{
+  const day=i+1;
+  const themes = [
+    "النية والبداية","الرحمة","الهدوء الداخلي","الصدق مع النفس","الاستمرارية","مراجعة العادات",
+    "خفض الضوضاء","الإحسان في العمل","الذكر الخفيف","الامتنان","حسن الخلق","الاستغفار",
+    "إتقان العمل","العفو","صلة الرحم","الدعاء","الثبات","إطعام الطعام","التخفف","الفتح",
+    "العشر الأواخر","قيام الليل","القرآن","الوتر","العطاء","الاحتساب","التركيز على الجوهر",
+    "تهذيب اللسان","الاستعداد للعيد","خاتمة قوية"
   ];
-  return pool[day % pool.length];
-}
-function renderDaily(day){
-  if(!day){
-    $('themeTitle').textContent = "معلومة اليوم";
-    $('themeText').textContent = "—";
-    $('ayahRef').textContent = "آية: —";
-    $('hadithRef').textContent = "حديث: —";
-    $('duaText').textContent = "—";
-    $('actionTag').textContent = "عمل اليوم: —";
-    const h = historicalForDay(1);
-    $('histText').textContent = `${h.title}: ${h.text}`;
-    $('histTag').textContent = h.tag;
-    return;
-  }
-  const d = RAMADAN_DAILY[(day-1) % RAMADAN_DAILY.length];
-  $('themeTitle').textContent = `يوم ${day}: ${d.theme}`;
-  $('themeText').textContent = d.takeaway;
-  $('ayahRef').textContent = `آية: ${d.ayah}`;
-  $('hadithRef').textContent = `حديث: ${d.hadith}`;
-  $('duaText').textContent = d.dua;
-  $('actionTag').textContent = `عمل اليوم: ${d.action}`;
-
-  const h = historicalForDay(day);
-  $('histText').textContent = `${h.title}: ${h.text}`;
-  $('histTag').textContent = h.tag;
-}
-
-function updateIftar(){
-  if(!PT) return;
-  const d = ammanNow();
-  const nowMin = d.getHours()*60 + d.getMinutes();
-  const sec = d.getSeconds();
-
-  const mag = parseHM(PT.Maghrib);
-  const fajr = parseHM(PT.Fajr);
-
-  let dm = mag - nowMin;
-  if(dm < 0) dm += 1440;
-
-  const totalSec = dm*60 - sec;
-  const sLeft = (totalSec % 60 + 60) % 60;
-  const minLeft = Math.floor(totalSec/60);
-  const hLeft = Math.floor(minLeft/60);
-  const mLeft = minLeft % 60;
-
-  $('tH').textContent = pad2(hLeft);
-  $('tM').textContent = pad2(mLeft);
-  $('tS').textContent = pad2(sLeft);
-  $('iftarAt').textContent = `المغرب ${PT.Maghrib}`;
-
-  if(fajr!=null && mag!=null){
-    let start = fajr, end = mag, cur = nowMin;
-    if(end <= start) end += 1440;
-    if(cur < start) cur += 1440;
-    const pct = Math.max(0, Math.min(1, (cur - start)/(end - start)));
-    $('fastProg').textContent = `${Math.round(pct*100)}%`;
-    $('fastProgS').textContent = `من ${PT.Fajr} إلى ${PT.Maghrib}`;
-    setRing('ringFast', pct);
-    $('ringFastTxt').innerHTML = `${Math.round(pct*100)}%<small>صيام</small>`;
-  }
-}
-
-function updateNextPrayer(){
-  if(!PT) return;
-  const d = ammanNow();
-  const nowMin = d.getHours()*60 + d.getMinutes();
-  const order = [
-    ['الفجر', parseHM(PT.Fajr), PT.Fajr, 'pFajr'],
-    ['الشروق', parseHM(PT.Sunrise), PT.Sunrise, 'pSun'],
-    ['الظهر', parseHM(PT.Dhuhr), PT.Dhuhr, 'pDhuhr'],
-    ['العصر', parseHM(PT.Asr), PT.Asr, 'pAsr'],
-    ['المغرب', parseHM(PT.Maghrib), PT.Maghrib, 'pMag'],
-    ['العشاء', parseHM(PT.Isha), PT.Isha, 'pIsha'],
-  ].filter(x=>x[1]!=null);
-
-  ['pFajr','pSun','pDhuhr','pAsr','pMag','pIsha'].forEach(id=>$(id).classList.remove('active'));
-
-  let next = order.find(x=>x[1] > nowMin);
-  if(!next) next = [order[0][0], order[0][1]+1440, order[0][2], order[0][3]];
-
-  const diff = next[1] - nowMin;
-  $('nextPrayer').textContent = next[0];
-  $('nextPrayerS').textContent = `بعد ${dur(diff)} • ${hm(next[1])}`;
-
-  const win = 90;
-  const pct = 1 - Math.min(1, diff / win);
-  setRing('ringPrayer', pct);
-  $('ringPrayerTxt').innerHTML = `${Math.round(pct*100)}%<small>صلاة</small>`;
-  if(next[3] && $(next[3])) $(next[3]).classList.add('active');
-}
-
-function expectedOut(inMin){ return inMin + Math.round(WORK_HOURS*60); }
-
-function updateWork(){
-  const inHM = $('inTime').value;
-  const inMin = parseHM(inHM);
-
-  if(inMin==null){
-    $('kOut').textContent = '—';
-    $('kOutS').textContent = 'أدخل وقت الدخول';
-    $('kLeft').textContent = '—';
-    $('kLeftS').textContent = '—';
-    setRing('ringWork', 0); setRing('ringLeft', 0);
-    $('ringWorkTxt').innerHTML = `—<small>دوام</small>`;
-    $('ringLeftTxt').innerHTML = `—<small>متبقي</small>`;
-    return;
-  }
-
-  const outMin = expectedOut(inMin);
-  const outHM = hm(outMin);
-  $('kOut').textContent = outHM;
-  $('kOutS').textContent = `ثابت: ${WORK_HOURS} ساعة`;
-
-  const now = ammanNow();
-  let nowAbs = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
-  let inAbs = inMin;
-  let outAbs = outMin;
-
-  if(outAbs < inAbs) outAbs += 1440;
-  if(nowAbs < inAbs) nowAbs += 1440;
-
-  const total = Math.max(1, outAbs - inAbs);
-  const elapsed = Math.max(0, Math.min(total, nowAbs - inAbs));
-  const pct = elapsed / total;
-
-  setRing('ringWork', pct);
-  $('ringWorkTxt').innerHTML = `${Math.round(pct*100)}%<small>دوام</small>`;
-
-  const left = outAbs - nowAbs;
-  if(left > 0){
-    $('kLeft').textContent = dur(left);
-    $('kLeftS').textContent = `الخروج المتوقع ${outHM}`;
-    setRing('ringLeft', 1 - Math.min(1, left/total));
-    $('ringLeftTxt').innerHTML = `${Math.round((1 - Math.min(1, left/total))*100)}%<small>متبقي</small>`;
-  }else{
-    $('kLeft').textContent = 'تم';
-    $('kLeftS').textContent = 'تجاوزت وقت الخروج';
-    setRing('ringLeft', 1);
-    $('ringLeftTxt').innerHTML = `100%<small>متبقي</small>`;
-  }
-}
-
-function updateClock(){
-  const d=ammanNow();
-  $('nowClock').textContent = `${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
-}
-
-function loadLog(){ try{ return JSON.parse(localStorage.getItem(LS_LOG)||'[]'); }catch{ return []; } }
-function saveLog(arr){ localStorage.setItem(LS_LOG, JSON.stringify(arr)); }
-
-function addLog(){
-  const name = $('name').value.trim();
-  const inHM = $('inTime').value;
-  if(!name){ toast('الاسم مطلوب'); return; }
-  if(!inHM){ toast('وقت الدخول مطلوب'); return; }
-  const inMin = parseHM(inHM);
-  const outMin = expectedOut(inMin);
-  const arr = loadLog();
-  arr.push({date: todayISO(), name, inTime: inHM, expectedOut: hm(outMin), createdAt: new Date().toISOString()});
-  saveLog(arr);
-  renderLog();
-  toast('تم الحفظ','تم حفظ دخول اليوم محلياً.');
-}
-
-function renderLog(){
-  const arr = loadLog();
-  const tb = $('logBody');
-  if(!arr.length){
-    tb.innerHTML = `<tr><td colspan="4" class="tiny">لا يوجد سجل بعد.</td></tr>`;
-    $('logStats').textContent = '—';
-    return;
-  }
-  tb.innerHTML = arr.slice().reverse().slice(0,20).map(x=>`
-    <tr><td>${x.date}</td><td>${esc(x.name)}</td><td>${x.inTime}</td><td>${x.expectedOut}</td></tr>
-  `).join('');
-  const today = todayISO();
-  const todayRows = arr.filter(x=>x.date===today);
-  const avgIn = todayRows.length ? (todayRows.reduce((a,b)=>a+parseHM(b.inTime),0)/todayRows.length) : null;
-  $('logStats').textContent = `سجلات اليوم: ${todayRows.length}` + (avgIn!=null ? ` • متوسط الدخول: ${hm(avgIn)}` : '');
-}
-
-function exportCSV(){
-  const arr = loadLog();
-  if(!arr.length){ toast('لا يوجد بيانات للتصدير'); return; }
-  const hdr = ['date','name','in_time','expected_out'];
-  const rows = arr.map(x=>[x.date, x.name, x.inTime, x.expectedOut].map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(','));
-  const csv = hdr.join(',') + '\n' + rows.join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `ramadan_log_${todayISO()}.csv`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-function clearLog(){
-  if(!confirm('متأكد من مسح السجل المحلي؟')) return;
-  localStorage.removeItem(LS_LOG);
-  renderLog();
-  toast('تم المسح');
-}
-
-/* Google Maps (TrafficLayer + hotspot highlights) */
-let map=null, trafficLayer=null;
-let hotspotCircles = new Map();
-let hotspotMarkers = new Map();
-
-function loadTraffic(){ try{ return JSON.parse(localStorage.getItem(LS_TRAFFIC)||'{}'); }catch{ return {}; } }
-function saveTraffic(obj){ localStorage.setItem(LS_TRAFFIC, JSON.stringify(obj)); }
-function statusLabel(st){
-  if(st==="heavy") return {txt:"عالي", cls:"b-heavy", color:"#ff6b87"};
-  if(st==="med") return {txt:"متوسط", cls:"b-med", color:"#ffd166"};
-  if(st==="light") return {txt:"خفيف", cls:"b-light", color:"#43d39e"};
-  return {txt:"غير محدد", cls:"b-med", color:"#7fd6ff"};
-}
-function cycleStatus(cur){ return (cur==="unk") ? "heavy" : (cur==="heavy") ? "med" : (cur==="med") ? "light" : "unk"; }
-
-function ensureGMapsScript(){
-  if(!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY === "PUT_YOUR_KEY_HERE"){
-    toast("مفتاح Google Maps غير موجود", "افتح docs/app.js وضع API Key ثم ارفع الموقع على GitHub Pages.");
-    return;
-  }
-  const s = document.createElement("script");
-  s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_API_KEY)}&callback=initMap&v=weekly`;
-  s.async = true; s.defer = true;
-  window.initMap = initMap;
-  document.head.appendChild(s);
-}
-
-function initMap(){
-  const amman = {lat:31.9539, lng:35.9106};
-  map = new google.maps.Map(document.getElementById("map"), {
-    center: amman, zoom: 12,
-    mapTypeControl:false, streetViewControl:false, fullscreenControl:true
-  });
-  trafficLayer = new google.maps.TrafficLayer();
-  trafficLayer.setMap(map);
-  renderHotspots();
-  toast("الخريطة جاهزة", "Traffic Layer مفعّل");
-}
-
-function renderHotspots(){
-  const st = loadTraffic();
-  const container = $("hotspots");
-  const rank = (s)=> s==="heavy"?0 : s==="med"?1 : s==="light"?2 : 3;
-  const sorted = AMMAN_HOTSPOTS.slice().sort((a,b)=>rank(st[a.id]?.status||"unk")-rank(st[b.id]?.status||"unk"));
-
-  container.innerHTML = sorted.map(h=>{
-    const info = statusLabel(st[h.id]?.status || "unk");
-    const upd = st[h.id]?.updatedAt ? new Date(st[h.id].updatedAt) : null;
-    const updTxt = upd ? `• آخر تحديث ${pad2(upd.getHours())}:${pad2(upd.getMinutes())}` : "";
-    return `
-      <div class="hot" data-id="${h.id}">
-        <div>
-          <div class="name">${esc(h.name)}</div>
-          <div class="meta">${esc(h.meta)} ${updTxt}</div>
-        </div>
-        <div class="pill ${info.cls}">${info.txt}</div>
-      </div>
-    `;
-  }).join("");
-
-  container.querySelectorAll(".hot").forEach(node=>{
-    node.addEventListener("click", ()=> onHotspotClick(node.getAttribute("data-id")));
-  });
-
-  if(map && google?.maps){
-    for(const h of AMMAN_HOTSPOTS){
-      const status = st[h.id]?.status || "unk";
-      upsertHotspotOverlay(h, status);
-    }
-  }
-}
-
-function upsertHotspotOverlay(h, status){
-  const info = statusLabel(status);
-
-  if(!hotspotMarkers.has(h.id)){
-    const marker = new google.maps.Marker({ position:{lat:h.lat, lng:h.lon}, map, title:h.name });
-    hotspotMarkers.set(h.id, marker);
-    const infow = new google.maps.InfoWindow();
-    marker.addListener("click", ()=>{
-      const st = loadTraffic();
-      const s = st[h.id]?.status || "unk";
-      const i = statusLabel(s);
-      infow.setContent(`
-        <div dir="rtl" style="font-family:Tajawal,Arial; min-width:220px;">
-          <div style="font-weight:900; margin-bottom:6px;">${esc(h.name)}</div>
-          <div style="opacity:.85; margin-bottom:10px;">الحالة: <b>${i.txt}</b></div>
-          <div style="font-size:12px; opacity:.8;">اضغط على القائمة لتغيير الحالة وتظليل المنطقة.</div>
-        </div>
-      `);
-      infow.open({anchor: marker, map});
-    });
-  }
-
-  if(!hotspotCircles.has(h.id)){
-    const circle = new google.maps.Circle({
-      strokeColor: info.color, strokeOpacity: 0.85, strokeWeight: 2,
-      fillColor: info.color,
-      fillOpacity: status==="unk" ? 0.05 : (status==="light"?0.12: status==="med"?0.16:0.20),
-      map, center:{lat:h.lat, lng:h.lon}, radius: 700
-    });
-    hotspotCircles.set(h.id, circle);
-  }else{
-    const circle = hotspotCircles.get(h.id);
-    circle.setOptions({
-      strokeColor: info.color, fillColor: info.color,
-      fillOpacity: status==="unk" ? 0.05 : (status==="light"?0.12: status==="med"?0.16:0.20)
-    });
-  }
-}
-
-function onHotspotClick(id){
-  const h = AMMAN_HOTSPOTS.find(x=>x.id===id);
-  if(!h) return;
-
-  if(map){ map.panTo({lat:h.lat, lng:h.lon}); map.setZoom(14); }
-
-  const st = loadTraffic();
-  const cur = st[id]?.status || "unk";
-  const next = cycleStatus(cur);
-  st[id] = {status: next, updatedAt: new Date().toISOString()};
-  saveTraffic(st);
-
-  renderHotspots();
-  toast("تم تحديث الازدحام", `${h.name}: ${statusLabel(next).txt}`);
-}
-
-function toggleTraffic(){ if(!trafficLayer) return; trafficLayer.setMap(trafficLayer.getMap() ? null : map); }
-function resetMap(){ if(!map) return; map.setZoom(12); map.panTo({lat:31.9539, lng:35.9106}); }
-
-function updateAll(){
-  updateClock(); updateIftar(); updateNextPrayer(); updateWork(); renderLog();
-}
-
-document.addEventListener("DOMContentLoaded", ()=>{
-  randomTip();
-  $('newTip').addEventListener('click', randomTip);
-  $('refreshPT').addEventListener('click', fetchPT);
-  $('saveBtn').addEventListener('click', addLog);
-  $('calcBtn').addEventListener('click', updateAll);
-  $('exportCSV').addEventListener('click', exportCSV);
-  $('clearLog').addEventListener('click', clearLog);
-  $('toggleTraffic').addEventListener('click', toggleTraffic);
-  $('resetMap').addEventListener('click', resetMap);
-
-  ['name','inTime'].forEach(id=>{
-    $(id).addEventListener('input', updateAll);
-    $(id).addEventListener('change', updateAll);
-  });
-
-  renderDaily(null);
-  renderLog();
-  renderHotspots();
-
-  fetchPT();
-  updateAll();
-  ensureGMapsScript();
-
-  setInterval(updateAll, 1000);
-  setInterval(()=>{ const d = new Date(); if(d.getMinutes()%30===0 && d.getSeconds()===0) fetchPT(); }, 1000);
+  const ayahRefs = [
+    "البقرة 183","البقرة 185","الرعد 28","الحشر 18","العصر 1–3","الفرقان 63",
+    "الشرح 5–6","المؤمنون 1–11","الأحزاب 41","إبراهيم 7","القلم 4","الزمر 53",
+    "القصص 77","النور 22","محمد 22–23","غافر 60","فصلت 30","الإنسان 8–9",
+    "الحديد 20","الفتح 1","القدر 1–5","المزمل 1–6","الإسراء 9","البقرة 186",
+    "البقرة 261","التوبة 120","الأعلى 14–15","ق 18","آل عمران 133–136","آل عمران 200"
+  ];
+  const hadithRefs = [
+    "إنما الأعمال بالنيات","الصوم جُنّة","ألا بذكر الله تطمئن القلوب (معنى)","حاسبوا أنفسكم (معنى)",
+    "أحب الأعمال أدومها","الرفق","تبسّمك صدقة","إماطة الأذى","سبحان الله وبحمده","الامتنان",
+    "حسن الخلق","استغفروا الله","إن الله يحب إذا عمل أحدكم عملاً أن يتقنه (معنى)",
+    "العفو","صلة الرحم","الدعاء","الاستقامة","إطعام الطعام","الزهد","الفتح",
+    "قيام رمضان","الوتر","القرآن","تحرّوا ليلة القدر","الصدقة","الاحتساب",
+    "اليسر","حفظ اللسان","العيد","خاتمة"
+  ];
+  const takeaways = [
+    "حدّد نيتك اليوم بجملة واحدة: “لله… ولأسرتي… ولعملي…”.",
+    "ارحم نفسك: هدفان قويان أفضل من 10 أهداف ضعيفة.",
+    "أغلق الضوضاء: 10 دقائق صمت تصنع فرقاً كبيراً.",
+    "اسأل: ما الشيء الذي أتهرب منه؟ ابدأ به 15 دقيقة.",
+    "الالتزام الصغير يومياً أقوى من اندفاعة كبيرة مرة واحدة.",
+    "بدّل عادة واحدة اليوم (سوشال/سهر) وراقب الفرق.",
+    "تبويب واحد… مهمة واحدة. لا تقتل التركيز.",
+    "الإحسان: ردّ سريع ومحترم = انطباع ثابت.",
+    "ذكر خفيف أثناء المشي/القيادة: “سبحان الله”.",
+    "اكتب 3 نعم في دقيقة. نعم… دقيقة فقط.",
+    "خُلُق اليوم: لا تردّ بانفعال. تأخير 10 ثواني يكفي.",
+    "استغفار متفرق يفرّغ الضغط ويخفف الثِقل.",
+    "إتقان: أنهِ مهمة واحدة بامتياز بدل ثلاث بنصف جودة.",
+    "سامح مرة واحدة اليوم (حتى لو داخلياً).",
+    "اتصل بقريب/صديق قديم: دقيقتان تكفي.",
+    "اجعل الدعاء محدداً: “يا رب ارزقني… في… قبل…”.",
+    "الثبات: خطوتان يومياً أفضل من خطة مثالية لا تبدأ.",
+    "إفطار صائم ولو بماء/تمرة… أثره كبير.",
+    "خفّف الأشياء: قلّل المشتتات، تزيد الطمأنينة.",
+    "فتح اليوم: افتح صفحة جديدة مع شخص/مهمة.",
+    "العشر: اغلق الهاتف 20 دقيقة لعبادة/قرآن.",
+    "قيام بسيط: ركعتان + وتر. جودة قبل كمية.",
+    "اقرأ صفحة بتدبر: اسأل “كيف أطبق؟”.",
+    "وتر اليوم: قبل النوم. لا تعقّدها.",
+    "صدقة صغيرة يومياً… حتى لو سرّاً.",
+    "احتساب: اربط التعب بالمعنى… يخف الألم.",
+    "قائمة 3 مهام فقط. كل شيء زائد “تأجيل”.",
+    "تهذيب اللسان: لا غيبة، لا جدال، لا تنظير.",
+    "خطط للعيد مبكراً: التزامات أقل = فرح أكثر.",
+    "خاتمة: اختر عادة واحدة تكملها بعد رمضان."
+  ];
+  const duas = [
+    "اللهم تقبّل منا الصيام والقيام، واهدِنا لأحسن الأعمال.",
+    "اللهم اجعل لنا من كل همّ فرجاً ومن كل ضيق مخرجاً.",
+    "اللهم ارزقنا طمأنينة القلب وصدق النية وحسن الخاتمة."
+  ];
+  const actions = ["رسالة شكر لشخص واحد","إنهاء مهمة مؤجلة واحدة","صدقة صغيرة","قراءة صفحتين قرآن","صلة رحم (اتصال سريع)","مساعدة زميل"];
+  return {day, theme:themes[i]||"معلومة اليوم", ayah:ayahRefs[i]||"—", hadith:hadithRefs[i]||"—", takeaway:takeaways[i]||"—", dua:duas[i%duas.length], action:actions[i%actions.length]};
 });
+
+const RAMADAN_HISTORY = [
+  {day:10, title:"وفاة السيدة خديجة رضي الله عنها", text:"توفيت أم المؤمنين خديجة رضي الله عنها في رمضان (مشهوراً 10 رمضان) في عام الحزن.", tag:"10 رمضان (مشهور)"},
+  {day:17, title:"غزوة بدر الكبرى (2 هـ)", text:"وقعت غزوة بدر في 17 رمضان 2 هـ — حدث مفصلي في التاريخ الإسلامي.", tag:"17 رمضان (موثّق)"},
+  {day:20, title:"فتح مكة (8 هـ)", text:"يُذكر فتح مكة في رمضان 8 هـ، مع اختلاف في اليوم الدقيق بين بعض المصادر.", tag:"رمضان 8 هـ (اختلاف)"},
+];
+
+const AMMAN_HOTSPOTS = [
+  {id:"circle7", name:"الدوّار السابع", meta:"Abdoun / 7th Circle", lat:31.9492, lon:35.8666},
+  {id:"sweifieh", name:"الصويفية", meta:"Wakalat / Sweifieh", lat:31.9519, lon:35.8606},
+  {id:"shmeisani", name:"الشميساني", meta:"Shmeisani", lat:31.9636, lon:35.9031},
+  {id:"gardens", name:"شارع الجاردنز", meta:"Gardens St", lat:31.9921, lon:35.8634},
+  {id:"mecca", name:"شارع مكة", meta:"Mecca St", lat:31.9548, lon:35.8546},
+  {id:"tabarbour", name:"طبربور", meta:"Tabarbour", lat:32.0234, lon:35.9295},
+  {id:"airport", name:"طريق المطار", meta:"Airport Rd", lat:31.8797, lon:35.8856},
+];
