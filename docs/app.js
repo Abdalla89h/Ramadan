@@ -1,7 +1,7 @@
 /* Ramadan Dashboard — Google Maps + Prayer Times + minimal input.
    Put your Google Maps API key below.
 */
-const GOOGLE_MAPS_API_KEY = AIzaSyCFk0DglqYA3dHyQ5xhBKVt88UI5v6K4JU; // <-- replace
+const GOOGLE_MAPS_API_KEY = "AIzaSyCFk0DglqYA3dHyQ5xhBKVt88UI5v6K4JU"; // <-- replace
 const WORK_HOURS = 6.5; // Strict: no prayer-break additions
 const LS_LOG = "ramadan_log_gmaps_v1";
 const LS_TRAFFIC = "ramadan_hotspots_gmaps_v1";
